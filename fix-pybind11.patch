@@ -1,0 +1,14 @@
+diff --git a/hailort/cmake/external/pybind11.cmake b/hailort/cmake/external/pybind11.cmake
+index 51f4945..6d711e9 100644
+--- a/hailort/cmake/external/pybind11.cmake
++++ b/hailort/cmake/external/pybind11.cmake
+@@ -4,9 +4,6 @@ include(FetchContent)
+
+ FetchContent_Declare(
+     pybind11
+-    GIT_REPOSITORY https://github.com/pybind/pybind11.git
+-    GIT_TAG 80dc998efced8ceb2be59756668a7e90e8bef917 # Version 2.10.1
+-    GIT_SHALLOW TRUE
+     SOURCE_DIR ${HAILO_EXTERNAL_DIR}/pybind11-src
+     SUBBUILD_DIR ${HAILO_EXTERNAL_DIR}/pybind11-subbuild
+ )

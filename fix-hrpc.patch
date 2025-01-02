@@ -1,0 +1,37 @@
+diff --git a/hailort/hrpc_protocol/CMakeLists.txt b/hailort/hrpc_protocol/CMakeLists.txt
+index fce92db..9582a29 100644
+--- a/hailort/hrpc_protocol/CMakeLists.txt
++++ b/hailort/hrpc_protocol/CMakeLists.txt
+@@ -1,10 +1,14 @@
+ cmake_minimum_required(VERSION 3.5.0)
+
++set(Protobuf_INCLUDE_DIR ${HAILO_EXTERNAL_DIR}/protobuf-install/include)
++find_package(Protobuf REQUIRED)
++include_directories(${Protobuf_INCLUDE_DIRS})
++
+ protobuf_generate_cpp(PROTO_RPC_SRC PROTO_RPC_HEADER rpc.proto)
+ get_filename_component(PROTO_HEADER_DIRECTORY ${PROTO_RPC_HEADER} DIRECTORY)
+
+ add_library(rpc_proto STATIC EXCLUDE_FROM_ALL ${PROTO_RPC_SRC} ${PROTO_RPC_HEADER})
+-target_link_libraries(rpc_proto libprotobuf-lite)
++target_link_libraries(rpc_proto ${Protobuf_LIBRARIES})
+ set_target_properties(rpc_proto PROPERTIES CXX_STANDARD 14 GENERATED TRUE POSITION_INDEPENDENT_CODE ON)
+ if(CMAKE_HOST_WIN32)
+     # https://github.com/protocolbuffers/protobuf/tree/master/cmake#notes-on-compiler-warnings
+@@ -13,12 +17,12 @@ endif()
+ get_filename_component(PROTO_HEADER_DIRECTORY ${PROTO_RPC_HEADER} DIRECTORY)
+ target_include_directories(rpc_proto
+     PUBLIC
+-    $<BUILD_INTERFACE: ${PROTO_HEADER_DIRECTORY}>
+-    $<BUILD_INTERFACE: ${Protobuf_INCLUDE_DIRS}>
++    $<BUILD_INTERFACE:${PROTO_HEADER_DIRECTORY}>
++    $<BUILD_INTERFACE:${Protobuf_INCLUDE_DIRS}>
+ )
+
+ set(SRC_FILES
+     ${CMAKE_CURRENT_SOURCE_DIR}/serializer.cpp
+ )
+
+-set(HRPC_PROTOCOL_CPP_SOURCES ${SRC_FILES} PARENT_SCOPE)
+\ No newline at end of file
++set(HRPC_PROTOCOL_CPP_SOURCES ${SRC_FILES} PARENT_SCOPE)

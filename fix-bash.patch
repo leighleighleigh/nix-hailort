@@ -1,0 +1,20 @@
+diff --git a/hailort/cmake/execute_cmake.cmake b/hailort/cmake/execute_cmake.cmake
+index 0898d2b..0082a6a 100644
+--- a/hailort/cmake/execute_cmake.cmake
++++ b/hailort/cmake/execute_cmake.cmake
+@@ -4,7 +4,7 @@ function(execute_process_in_clean_env)
+     cmake_parse_arguments(execute_process_in_clean_env "" "RESULT_VARIABLE" "" ${ARGN})
+     if(CMAKE_HOST_UNIX)
+         string(REPLACE ";" "' '" cmdline "'${execute_process_in_clean_env_UNPARSED_ARGUMENTS}'")
+-        execute_process(COMMAND env -i HOME=$ENV{HOME} PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin bash -l -c "${cmdline}" OUTPUT_QUIET RESULT_VARIABLE result)
++        execute_process(COMMAND env -i HOME=$ENV{HOME} PATH=$ENV{PATH} bash -l -c "${cmdline}" OUTPUT_QUIET RESULT_VARIABLE result)
+     else()
+         # TODO: make it clean env for cross compile
+         set(cmdline ${execute_process_in_clean_env_UNPARSED_ARGUMENTS})
+@@ -49,4 +49,4 @@ function(execute_cmake)
+     if(result)
+         message(FATAL_ERROR "Failed building ${execute_cmake_SOURCE_DIR}")
+     endif()
+-endfunction()
+\ No newline at end of file
++endfunction()

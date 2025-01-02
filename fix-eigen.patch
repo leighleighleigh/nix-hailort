@@ -1,0 +1,14 @@
+diff --git a/hailort/cmake/external/eigen.cmake b/hailort/cmake/external/eigen.cmake
+index 1bb1f66..750c511 100644
+--- a/hailort/cmake/external/eigen.cmake
++++ b/hailort/cmake/external/eigen.cmake
+@@ -4,9 +4,6 @@ include(FetchContent)
+
+ FetchContent_Declare(
+     eigen
+-    GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+-    GIT_TAG 3147391d946bb4b6c68edd901f2add6ac1f31f8c # Version 3.4.0
+-    GIT_SHALLOW TRUE
+     SOURCE_DIR ${HAILO_EXTERNAL_DIR}/eigen-src
+     SUBBUILD_DIR ${HAILO_EXTERNAL_DIR}/eigen-subbuild
+ )
