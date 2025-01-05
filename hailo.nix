@@ -84,6 +84,7 @@ let
 
     nativeBuildInputs = [ pkgs.cmake pkgs.git pkgs.gcc pkgs.bash ];
     dontUseCmakeConfigure = true;
+    separateDebugInfo = true;
 
     buildInputs = [ protobuf spdlog benchmark catch2 cli11 dotwriter eigen json pybind11 readerwriterqueue ];
 
@@ -133,8 +134,8 @@ let
       cp -r ${readerwriterqueue}/* hailort/external/readerwriterqueue-src
 
       # Configure and build the project
-      cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${if debugSymbols then "Debug" else "Release"} -DCMAKE_SKIP_BUILD_RPATH=ON
-      cmake --build build --config ${if debugSymbols then "Debug" else "Release"}
+      cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_SKIP_BUILD_RPATH=ON
+      cmake --build build --config Debug
     '';
 
     installPhase = ''
@@ -154,14 +155,6 @@ let
   };
 
 in {
-  options = {
-    hailo.debugSymbols = lib.mkOption {
-      type = types.bool;
-      default = false;
-      description = "Build HailoRT with debug symbols.";
-    };
-  };
-
   environment.systemPackages = [ hailort ];
   services.udev.extraRules = ''
       #Change mode rules for Hailo's PCIe driver
