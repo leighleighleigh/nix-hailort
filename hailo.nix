@@ -1,4 +1,4 @@
-{ config, pkgs, debugSymbols ? false, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   protobuf = pkgs.fetchFromGitHub {
@@ -155,7 +155,7 @@ let
 
 in {
   options = {
-    hailo.debugSymbols = mkOption {
+    hailo.debugSymbols = lib.mkOption {
       type = types.bool;
       default = false;
       description = "Build HailoRT with debug symbols.";
