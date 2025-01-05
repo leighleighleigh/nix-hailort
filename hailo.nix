@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, debugSymbols ? false, ... }:
 
 let
   protobuf = pkgs.fetchFromGitHub {
@@ -133,8 +133,8 @@ let
       cp -r ${readerwriterqueue}/* hailort/external/readerwriterqueue-src
 
       # Configure and build the project
-      cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_SKIP_BUILD_RPATH=ON
-      cmake --build build --config Release
+      cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=${if debugSymbols then "Debug" else "Release"} -DCMAKE_SKIP_BUILD_RPATH=ON
+      cmake --build build --config ${if debugSymbols then "Debug" else "Release"}
     '';
 
     installPhase = ''
@@ -147,13 +147,21 @@ let
 
     meta = with pkgs.lib; {
       description = "HailoRT CLI and library";
-      license = licenses.asl20;
+      license = licenses.mit;
       platforms = platforms.linux;
       homepage = "https://github.com/hailo-ai/hailort";
     };
   };
 
 in {
+  options = {
+    hailo.debugSymbols = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Build HailoRT with debug symbols.";
+    };
+  };
+
   environment.systemPackages = [ hailort ];
   services.udev.extraRules = ''
       #Change mode rules for Hailo's PCIe driver

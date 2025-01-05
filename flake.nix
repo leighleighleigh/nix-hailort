@@ -7,7 +7,10 @@
 
   outputs = { self, nixpkgs }: {
     nixosModules = {
-        hailo = import ./hailo.nix;
-      };
+      hailo = { config, pkgs, ... }: let
+        debugSymbols = config.options.hailo.debugSymbols or false;
+      in
+        import ./hailo.nix { inherit config pkgs debugSymbols; };
+    };
   };
 }
