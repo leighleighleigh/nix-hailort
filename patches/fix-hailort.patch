@@ -1,0 +1,11 @@
+diff --git a/hailort/libhailort/src/vdma/pcie/pcie_device_hrpc_client.cpp b/hailort/libhailort/src/vdma/pcie/pcie_device_hrpc_client.cpp
+index b628678..7343440 100644
+--- a/hailort/libhailort/src/vdma/pcie/pcie_device_hrpc_client.cpp
++++ b/hailort/libhailort/src/vdma/pcie/pcie_device_hrpc_client.cpp
+@@ -10,7 +10,7 @@
+ #include "pcie_device_hrpc_client.hpp"
+ #include "device_common/device_internal.hpp"
+ #include "hailo/hailort.h"
+-#include "serializer.hpp"
++#include "hrpc_protocol/serializer.hpp"
+ #include "vdma/vdma_device.hpp"

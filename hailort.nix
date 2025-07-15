@@ -1,5 +1,4 @@
-{ config, pkgs, lib, ... }:
-
+{ pkgs, lib, ... }:
 let
   protobuf = pkgs.fetchFromGitHub {
     owner = "protocolbuffers";
@@ -11,8 +10,8 @@ let
   spdlog = pkgs.fetchFromGitHub {
     owner = "gabime";
     repo = "spdlog";
-    rev = "22a169bc319ac06948e7ee0be6b9b0ac81386604";
-    sha256 = "1b1b3zmbyjgqz5yfdgaasi55x03d37z7l2pasvgikx3mm1gabq5a";
+    rev = "27cb4c76708608465c413f6d0e6b8d99a4d84302";
+    sha256 = "sha256-F7khXbMilbh5b+eKnzcB0fPPWQqUHqAYPWJb83OnUKQ=";
   };
 
   benchmark = pkgs.fetchFromGitHub {
@@ -71,34 +70,56 @@ let
     sha256 = "0sh3rgj0mkw566ca6srvk4b8y2ca1y0rsa3bpcif62kdb3dx7hbl";
   };
 
-  hailort = pkgs.stdenv.mkDerivation rec {
+  xxhash = pkgs.fetchFromGitHub {
+      owner = "Cyan4973";
+      repo = "xxHash";
+      rev = "bbb27a5efb85b92a0486cf361a8635715a53f6ba";
+      sha256 = "sha256-kofPs01jb189LUjYHHt+KxDifZQWl0Hm779711mvWtI=";
+  };
+in
+pkgs.stdenv.mkDerivation rec {
     pname = "hailort";
-    version = "4.18.0";
-
-    src = pkgs.fetchFromGitHub {
-      owner = "hailo-ai";
-      repo = "hailort";
-      rev = "v${version}";
-      sha256 = "0hc16i7sydjcf4fv38rp6vsd36xyp1nc9bhcc350976diqb5c00q";
+    version = "4.21.0";
+    
+    # v4.18.0
+    #src = pkgs.fetchFromGitHub {
+    #  owner = "hailo-ai";
+    #  repo = "hailort";
+    #  rev = "v${version}";
+    #  sha256 = "0hc16i7sydjcf4fv38rp6vsd36xyp1nc9bhcc350976diqb5c00q";
+    #};
+    
+    # v4.21.0
+    src = pkgs.fetchgit {
+      url = "https://github.com/hailo-ai/hailort.git";
+      rev = "0df636dcb6be9b3943a458591ad5213674a9845d";  # hash
+      hash = "sha256-YhOn1zzByreBcqvvV4DOuY88jOy5QCbES8JEN+A+96U=";
+      fetchSubmodules = true;
     };
+
 
     nativeBuildInputs = [ pkgs.cmake pkgs.git pkgs.gcc pkgs.bash ];
     dontUseCmakeConfigure = true;
     separateDebugInfo = true;
+    # Prevents things being built before their dependencies
+    enableParallelBuilding = false;
 
-    buildInputs = [ protobuf spdlog benchmark catch2 cli11 dotwriter eigen json pybind11 readerwriterqueue ];
+
+    buildInputs = [ protobuf spdlog benchmark catch2 cli11 dotwriter eigen json pybind11 readerwriterqueue xxhash ];
 
     patches = [
-        ./fix-protobuf.patch
-        ./fix-bash.patch
-        ./fix-hrpc.patch
-        ./fix-cli11.patch
-        ./fix-dotwriter.patch
-        ./fix-eigen.patch
-        ./fix-json.patch
-        ./fix-pybind11.patch
-        ./fix-readwriter.patch
-        ./fix-spdlog.patch
+        ./patches/fix-protobuf.patch
+        ./patches/fix-bash.patch
+        ./patches/fix-hrpc.patch
+        ./patches/fix-cli11.patch
+        ./patches/fix-dotwriter.patch
+        ./patches/fix-eigen.patch
+        ./patches/fix-json.patch
+        ./patches/fix-pybind11.patch
+        ./patches/fix-readwriter.patch
+        ./patches/fix-spdlog.patch
+        ./patches/fix-xxhash.patch
+        ./patches/fix-hailort.patch
     ];
 
     buildPhase = ''
@@ -133,15 +154,17 @@ let
       mkdir -p hailort/external/readerwriterqueue-src
       cp -r ${readerwriterqueue}/* hailort/external/readerwriterqueue-src
 
+      mkdir -p hailort/external/xxhash-src
+      cp -r ${xxhash}/* hailort/external/xxhash-src
+
       # Configure and build the project
-      cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_SKIP_BUILD_RPATH=ON
-      cmake --build build --config Debug
+      cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_SKIP_BUILD_RPATH=ON
+      cmake --build build --config release
     '';
 
     installPhase = ''
       mkdir -p $out/bin
       mkdir -p $out/lib
-
       cp build/hailort/hailortcli/hailortcli $out/bin/
       cp build/hailort/libhailort/src/libhailort.so* $out/lib/
     '';
@@ -152,12 +175,4 @@ let
       platforms = platforms.linux;
       homepage = "https://github.com/hailo-ai/hailort";
     };
-  };
-
-in {
-  environment.systemPackages = [ hailort ];
-  services.udev.extraRules = ''
-      #Change mode rules for Hailo's PCIe driver
-      SUBSYSTEM=="hailo_chardev", MODE="0666"
-  '';
-}
+  }

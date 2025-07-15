@@ -7,7 +7,7 @@
 
   outputs = { self, nixpkgs }: {
     nixosModules = {
-        hailo = import ./hailo.nix;
-      };
+      hailort = import ./module.nix;
+    };
   };
 }
